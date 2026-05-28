@@ -15,8 +15,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -97,5 +96,45 @@ class TodoServiceTest {
         assertNotNull(savedTodo.id());
         assertEquals("todo1", savedTodo.description());
         assertEquals(Status.IN_PROGRESS, savedTodo.status());
+    }
+
+
+    @Test
+    void updateTodo_throwNoSuchElementException_whenExistingTodoIsNotFound() {
+        TodoService todoService = new TodoService(mockTodoRepository);
+        UUID todoId = UUID.randomUUID();
+        when(mockTodoRepository.findById(todoId)).thenReturn(Optional.empty());
+
+        TodoDTO todoDTO = TodoDTO.builder().status(Status.IN_PROGRESS).build();
+
+        assertThrows(NoSuchElementException.class, () -> todoService.updateTodo(todoId, todoDTO));
+
+        verify(mockTodoRepository).findById(todoId);
+        verifyNoMoreInteractions(mockTodoRepository);
+    }
+
+    @Test
+    void deleteTodo_deleteTodoById_whenTodoFound() {
+        TodoService todoService = new TodoService(mockTodoRepository);
+        UUID todoId = UUID.randomUUID();
+        Todo existingTodo = Todo.builder().status(Status.OPEN).description("todo1").id(todoId).build();
+        when(mockTodoRepository.findById(todoId)).thenReturn(Optional.ofNullable(existingTodo));
+
+        todoService.deleteTodo(todoId);
+
+        verify(mockTodoRepository).findById(todoId);
+        verify(mockTodoRepository).deleteById(todoId);
+    }
+
+    @Test
+    void deleteTodo_shouldThrowNoSuchElementException_whenTodoNotFound() {
+        TodoService todoService = new TodoService(mockTodoRepository);
+        UUID todoId = UUID.randomUUID();
+        when(mockTodoRepository.findById(todoId)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class, () -> todoService.deleteTodo(todoId));
+
+        verify(mockTodoRepository).findById(todoId);
+        verifyNoMoreInteractions(mockTodoRepository);
     }
 }
