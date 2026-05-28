@@ -10,7 +10,6 @@ import org.myspring.springrecap.dtos.TodoDTO;
 import org.myspring.springrecap.enums.Status;
 import org.myspring.springrecap.models.Todo;
 import org.myspring.springrecap.repositories.TodoRepository;
-import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.*;
 
@@ -18,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class TodoServiceTest {
 
     @Mock
@@ -90,7 +88,7 @@ class TodoServiceTest {
 
         verify(mockTodoRepository).findById(todoId);
         verify(mockTodoRepository).save(captor.capture());
-
+        System.out.println(captor.getAllValues());
         Todo savedTodo = captor.getValue();
 
         assertNotNull(savedTodo.id());
