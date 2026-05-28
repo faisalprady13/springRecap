@@ -22,8 +22,10 @@ public class TodoService {
         return todoRepository.findById(todoId).orElseThrow();
     }
 
-    public void addTodo(TodoDTO todoDTO) {
-        todoRepository.save(new Todo(todoDTO));
+    public UUID addTodo(TodoDTO todoDTO) {
+        Todo newTodo = new Todo(todoDTO);
+        todoRepository.save(newTodo);
+        return newTodo.id();
     }
 
     public void updateTodo(UUID id, TodoDTO todoDTO) {
